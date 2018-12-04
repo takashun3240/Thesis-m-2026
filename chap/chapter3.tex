@@ -1,0 +1,77 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第3章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{表で遊ぶ}\label{ch:3}
+表についてが深いようですので，ここでは比較的基本的だと思われるところだけを紹介します．
+
+\section{表を入れる}
+表を入れてみましょう．もうめんどくさいので何も書きません．結果は表\ref{tb:simple}です．この表では，表のカラム宣言である\url{\begin{tabular}}において，lcと書いていますから，左のカラムは左寄せに，右のカラムは中央寄せになっています．各行では，\url{&}記号によってカラムが区切られ\url{\\} で1行が終わります．
+
+\begin{table}[tbh]
+  \centering
+  \caption{シンプルな表}
+  \label{tb:simple}
+  \begin{tabular}{lc} %\hline
+    column 1 & column 2 \\ \hline \hline
+           A & 1        \\
+           B & 2        \\ \hline
+  \end{tabular}
+\end{table}
+
+\section{表をカスタマイズする}
+\subsection{罫線をいじる}
+ちょっと下品に見えるので個人的にはあまりおすすめしませんが，ガッツリ罫線を入れることも可能です．縦の罫線はカラム宣言の指定子をいじればokです．パイプを突っ込むと縦の罫線が描かれます．結果は表\ref{tb:vertical_lines}です．\par
+また，横の罫線は\url{\hline}を挿入すると引かれます．こちらもあまり使いすぎるのは良くないでしょう．
+
+\begin{table}[tbh]
+  \centering
+  \caption{たくさん罫線を入れた表}
+  \label{tb:vertical_lines}
+  \begin{tabular}{|c|c|} \hline
+    column 1 & column 2 \\ \hline \hline
+           A & 1        \\ \hline \hline \hline \hline
+           B & 2        \\ \hline
+  \end{tabular}
+\end{table}
+
+
+\subsection{列の長さを指定する}
+なかなか面倒なやつです．とりあえず第一カラムを長めにしてみましょう．ここでは\url{p{50mm}}としてみました．これは，上/左詰めの幅指定カラムを意味します．結果は表\ref{tb:long_col}となります．
+
+
+\begin{table}[tbh]
+  \centering
+  \caption{列の長さを調整する}
+  \label{tb:long_col}
+  \begin{tabular}{p{50mm}c} %\hline
+    column 1                             & column 2 \\ \hline \hline
+    長さを指定してみると，勝手に2行になります． & 1        \\
+    B                                    & 2        \\ \hline
+  \end{tabular}
+\end{table}
+
+\subsection{ぶち抜きの表を作る}
+\url{\multicolumn}を使えば，複数の列をぶち抜いた表を作成できます．表\ref{tb:multi_col}に結果を示します(効果をわかりやすくするために縦の罫線を引いています)．\par
+
+\begin{table}[tbh]
+  \centering
+  \caption{列をぶち抜く}
+  \label{tb:multi_col}
+  \begin{tabular}{l|c|c} %\hline
+             & \multicolumn{2}{c}{結合部分} \\
+    column 1 & column 2 & column 3         \\ \hline \hline
+    A        & 1        & 3                \\
+    B        & 2        & 4                \\ \hline
+  \end{tabular}
+\end{table}
+
+では，行をぶち抜く場合はどうでしょう．この場合はプリアンプルで\url{\usepackage{multirow}}しておかなければなりません．文法はmulticolumnとほぼ同じですが，位置指定子はすでにあるものを使うので*としておきます．結果は表\ref{tb:multi_row}のようになります．
+
+\begin{table}[tbh]
+  \centering
+  \caption{行をぶち抜く}
+  \label{tb:multi_row}
+  \begin{tabular}{lc} %\hline
+    column 1 & column 2                 \\ \hline \hline
+           A & \multirow{2}{*}{ぶち抜き} \\
+           B &                          \\ \hline
+  \end{tabular}
+\end{table}

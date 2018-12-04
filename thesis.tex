@@ -1,0 +1,318 @@
+\documentclass[a4paper,12pt]{jreport}
+% ↓ 図をepsで挿入するときはこっちをアクティブにする??
+% \documentclass[epsf,a4paper,12pt]{jreport}
+
+% デフォルトのレベルは3で，X.Y.Z項まで
+% 4だとX.Y.Z.W目まで出力してくれるようになる
+% ここでは4を設定
+\setcounter{secnumdepth}{4}
+
+% 参考文献を本文で参照された順に並べる
+\bibliographystyle{junsrt}
+
+% 以下必要でないパッケージは自己判断で消してください
+
+% 図関連
+% colorはいらないなら外す
+\usepackage[dvipdfmx]{graphicx,color}
+% 図の位置指定を"まさにこの場所"にしてくれる
+% あまり推奨しないかも
+\usepackage{here}
+% \caption{}した後に\legend{}で2行目を入れられるやつ
+\usepackage{ccaption}
+% 複数枚の図を(a)(b)みたいに並べる．subfig,subfigureは非推奨らしい
+% subrefformat=parensで，\subref{}したときに(a)のようにカッコがつく
+\usepackage[subrefformat=parens]{subcaption}
+% ページ下部の脚注
+\usepackage[symbol*,perpage]{footmisc}
+
+% 表の行ぶち抜きをいい感じにしてくれるらしい
+\usepackage{multirow}
+
+% ソースコード載せる用
+\usepackage{listings,jlisting}
+
+% 単位をいい感じにしてくれる
+\usepackage{siunitx}
+
+% 数式はこれ使っておけ感のあるやつ
+% なにかのパッケとカチあうので順番注意
+% (おそらくtxfontsで，その場合はamsmathを先に読み込みます)
+\usepackage{amsmath}
+
+\usepackage{newtxmath, newtxtext}
+% ↓↑お好みでどちらかのパッケージを使用
+% txfontsはamsmathとカチあう可能性があるので，順序に注意
+% \usepackage{txfonts}
+
+% 90度回転したページを作れるやつ
+\usepackage{lscape}
+% ↓最初からハイフンの入ったurlをいい感じに改行させるには[hyphens]を入れておく
+\usepackage[hyphens]{url}
+
+%範囲コメントアウトに必要
+\usepackage{comment}
+% maketitleをいじるために使う(はず)
+\usepackage{titling}
+
+
+% 論文を実際に書くときはここから削除OK
+
+% texソースコード載せるための設定
+\lstdefinestyle{my_TeX_style}{
+  % language={TeX},
+  basicstyle={\ttfamily},%
+  identifierstyle={\small},%
+  commentstyle={\ttfamily\ttfamily \color[rgb]{0,0,0}},%
+  keywordstyle={\ttfamily\bfseries \color[rgb]{0,0,0.75}},%
+  ndkeywordstyle={\small},%
+  stringstyle={\ttfamily\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},%
+  numbers=left,%
+  xrightmargin=0zw,%
+  xleftmargin=3zw,%
+  numberstyle={\small},%
+  stepnumber=1,
+  numbersep=1zw,%
+  morecomment=[l]{//}%
+}
+
+% 自分で言語を定義するときはこんなふうに
+\lstdefinelanguage{BibTeX}{
+  keywords={%
+    @article,@book,@collectedbook,@conference,@electronic,@ieeetranbstctl,%
+    @inbook,@incollectedbook,@incollection,@injournal,@inproceedings,%
+    @manual,@mastersthesis,@misc,@patent,@periodical,@phdthesis,@preamble,%
+    @proceedings,@standard,@string,@techreport,@unpublished%
+  },
+  comment=[l][\itshape]{@comment},
+  sensitive=false,
+}
+
+\lstset{escapechar=, style={my_TeX_style}}
+
+\newcommand{\texcommand}{\begingroup%
+  \def\UrlBreaks{\do\\\do\/\do\_\do\-\do\+\do\=\do\{}%
+\Url}
+% ここまで削除OK
+
+
+\textheight 9.0in
+\textwidth 6.0in
+\topmargin 0in
+\oddsidemargin .2in
+\evensidemargin .2in
+
+\begin{document}
+\pagestyle{empty}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                和文要旨　                                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\vspace*{-1in}
+%\begin{center}
+%\Large\sffamily\gtfamily ユーザの目的に着目したPOIの\\推薦プラットフォームに関する研究
+%\end{center}
+%\begin{flushright}
+%\large\sffamily\gtfamily
+%281367043\ \ \ 一円　真治
+%\end{flushright}
+%\begin{center}
+%\large\sffamily\gtfamily 要旨
+%\end{center}
+%
+%%ここに要旨を日本語で書く
+%要旨(後ほど記述)
+%\newpage
+%\clearpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                           　 バインダー表紙                               %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{
+    {\Huge\sffamily\gtfamily
+    \vspace*{-.4in}
+    名古屋大学大学院工学研究科\\
+    \vspace*{.4in}
+    修\ \ 士\ \ 論\ \ 文\\
+    }
+    \vspace*{.8in}
+    {\huge\sffamily\gtfamily
+    ほげほげぴよぴよを用いた\\ふがふがに関する研究
+    }
+    \vspace{2in}
+  }
+  % ↓ここ変なハックになっているので，後続者に託します
+  % ↓標準ではauthorとdateの順が固定なので，中身を入れ替えるようにしています
+  \author{
+  % なぜかフォント設定がうまくいかないので毎行書きました
+  \LARGE\sffamily\gtfamily
+  20XX年2月\\ \LARGE\sffamily\gtfamily
+  計算理工学専攻\\ \LARGE\sffamily\gtfamily
+  基盤計算科学講座\ \ 先端情報環境グループ\\[.2in]
+  }
+  \date{
+  \vfill
+  \LARGE\sffamily\gtfamily
+  987654321\ \ \ 工学　太郎\\
+  \vfill
+}
+\maketitle
+\clearpage
+
+%白紙ページ(何も考えずに両面印刷しても大丈夫なように)
+\mbox{}\thispagestyle{empty}\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                表紙　　                                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{
+{\LARGE\sffamily\gtfamily
+修\ \ 士\ \ 論\ \ 文\\
+}
+\vspace*{.6in}
+{\huge\sffamily\gtfamily
+何かしらの\\修士論文
+}
+\vfill\vfill\vfill
+}
+
+\author{
+\LARGE\sffamily\gtfamily
+987654321\ \ \ 工学　太郎\\
+}
+\date{
+\vfill
+\Large\sffamily\gtfamily
+名古屋大学大学院 工学研究科\\ほげほげ工学専攻\\[.2in]
+20XX年2月
+\vfill
+}
+\maketitle
+\clearpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                目次　　　                                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} \pagenumbering{roman}
+\setcounter{page}{1}
+\tableofcontents
+\clearpage
+\listoffigures
+\listoftables
+\clearpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                本文　　　                                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} \pagenumbering{arabic}
+\setcounter{page}{1}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第1章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/chapter1.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第2章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/chapter2.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第3章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/chapter3.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第4章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/chapter4.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第5章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/chapter5.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第6章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/chapter6.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                参考文献                                  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{ref}
+\clearpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                発表実績                                    %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter*{発表実績}
+\noindent % ← 頭が字下げされるのが嫌なら入れる
+工学太郎，河口信夫\\
+河口研究室で気持ちよく研究生活を送るために(ここタイトル)\\
+第n回河口研ランチミーティング全国大会，pp.1--4, 20XX
+\\\\
+% \par
+Taro Kogaku, Nobuo Kawaguchi\\
+To Live a Smooth Research Life at Kawaguchi Lab.\\
+nth International Conference on Lunch Meeting of Kawaguchi Lab. (ICLMK), pp.1--4, 20XX\\
+(Best Paper Award)
+\\\\
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%    付録
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input chap/appendix.tex
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                  謝辞                                    %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter*{謝辞}
+%ここに謝辞を書く．
+これは謝辞．
+
+\clearpage
+
+
+
+%白紙ページ
+\mbox{}\thispagestyle{empty}\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%                                  背表紙                                   %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\thispagestyle{empty}
+\oddsidemargin -4in
+\evensidemargin -4in
+\topmargin -.5in
+{
+\tate
+\large\sffamily\gtfamily
+\begin{minipage}{9.5in}
+\begin{minipage}{6.0in}
+何かしらの修士論文
+\end{minipage}
+\hfill\hfill\hfill\hfill20XX年2月
+\hfill
+工学　太郎
+\end{minipage}
+}
+\end{document}
+
+\end{document}

@@ -1,0 +1,16 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第1章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter[はじめに: ここは目次に表示される文章]{はじめに: ここは本文中に表示される文章}\label{ch:1}
+thesis.texがすべての取りまとめ役で，chapterX.texが各章に対応します．以下，適当にtipsを交えつつ，適当な文章が続きます．\par
+
+\begin{enumerate}
+    \renewcommand{\labelenumi}{(\alph{enumi})}
+    \item \texcommand{\labelenumi}をいじるとenumerateの数字を変更できます
+    \item \texcommand{\alph}だとa, b, cに，\texcommand{\Roman}だとI, II, IIIになります
+    \item よかったらコントロールしてみてね！
+\end{enumerate}\par
+
+(a)アルファベットに変更してみました．(b)主に\texcommand{\arabic}(算用数字)や\texcommand{\alph}あたりを使うことになるでしょう．他には\texcommand{\roman}(小文字ローマ数字)，\texcommand{\Alph}(大文字アルファベット)もあります．(c)特に書くことがありませんでした．\par
+本文中でちょっとだけスペースを開けたいときは，\texcommand{\newline\par}とか書いてみると\newline\par
+%\section{研究目的}
+%\section{本論文の構成}
+こんな感じにスペースが開くかもしれませんね．以降，\ref{ch:2}章では図について少し，\ref{ch:3}章では表について少し書いてみます．\ref{ch:4}章はちょっとしたtipsを書きます．\ref{ch:5}章では，bibtexに触れて，まとめと今後の展望を述べます．

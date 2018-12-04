@@ -1,0 +1,27 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第5章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{bibtexのtips}\label{ch:5}
+bibtexを使いましょう．文献リストを育てられます．
+
+\section{bibファイルの準備}
+拡張子が\url{.bib}のファイルを用意します．名前に合わせて\url{\bibliography{}}コマンドを突っ込みます．例えばファイルが\url{ref.bib}なら\url{\bibliography{ref}}になります．\par
+中身はbibtexフォーマットの参考文献群になっている必要があります．リスト\ref{list:bib}のような感じのものがたくさん書かれています．
+Google ScholarやIEEE Xplore, ACM Digital Library等はすべてbibtexフォーマットでの参考文献出力に対応しているので，便利に使いましょう．ただし，油断は禁物で，不必要な情報が載っていたり，大文字小文字がめちゃくちゃだったりします．
+
+
+\begin{lstlisting}[caption=bibファイル内に記載される項目の例,label=list:bib, language=BibTeX]
+@article{watson1953molecular,
+  title={Molecular structure of nucleic acids},
+  author={Watson, James D and Crick, Francis HC and others},
+  journal={Nature},
+  volume={171},
+  number={4356},
+  pages={737--738},
+  year={1953}
+}
+\end{lstlisting}
+
+\section{citeによる参照}
+参照したいところで\url{\cite{<識別名>}}によって参照を加えます．先程の記事を参照\cite{watson1953molecular}してみます．ちなみに参照先がウェブサイトの場合は，参照した時期を記載するとよいでしょう．ここで三毛別羆事件\cite{sankebetsu}を参照してみます．
+
+\section{その他}
+\url{cite.sty}が利用可能な場合は，複数の参照を一点で行ったときにいい感じにしてくれます．例えば\url{\cite{a,b,c}}としたときに表示が\url{[1][2][3]}ではなく\url{[1-3]}のようになります．

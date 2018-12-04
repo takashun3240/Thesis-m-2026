@@ -1,0 +1,80 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第4章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{tips}\label{ch:4}
+ぜひここを充実させてもらいたい！
+
+\section{文章関連のtips}
+\subsection{本文と目次で表示される文章を変えたい}
+すでに出ていますが，\url{\section[目次用の文]{本文用の文}}とすることで設定可能です．図や表のキャプションでも同じことができます．
+
+\subsection{refで混乱しないために}
+\url{ref{}}で何を参照したのか混乱しないためには，labelの時点で例えば図はfig:をつける，表はtb:とするなどのルールを決めておくと良いでしょう．
+
+\subsection{色を変更する}
+プリアンプルでcolorが読み込まれた状態で\textcolor{red}{赤くなあれ}でOKです．
+
+\subsection{範囲コメントアウトを行う}
+一行だけのコメントアウトは\url{%}で可能ですが，複数行を一気にコメントアウトする場合は，2つの方法が考えられます．まずひとつ目は，\url{\if0}と\url{\fi}で囲んでしまう方法です．この方法は囲った範囲内に\url{\if}があると失敗する可能性があります．\par
+↓ソースコードではここにコメントアウトされたエリアがあります．コンパイル済みのpdfではおそらくこの文章の次に「もうひとつの〜」と文が来るはずです．\par
+
+\if0
+ここは
+出力
+されません．
+\fi
+
+もうひとつの方法は，commentパッケージを使う方法です．プリアンプルに\\\url{\usepackage{comment}}を記載しておきます．あとはコメントアウトしたい範囲を\url{\begin{comment}}と\url{\end{comment}}で囲いましょう．
+
+\begin{comment}
+ここは
+出力
+されません．
+\end{comment}
+
+
+\section{図関連のtips}
+\subsection{図とキャプションの間を詰めたい・広げたい}
+\url{vspace}の出番です．図\ref{fig:change_vspace}に例を示します．図\ref{fig:narrow_vspace}では標準より狭いvspaceを設定しました．図\ref{fig:normal_vspace}と見比べてください．
+
+\begin{figure}[tbh]
+  \centering %これ必要かわからない
+  % 最初の図---------------------------
+  \begin{minipage}[b]{0.45\hsize}
+    \centering
+    \includegraphics[width=5cm]{images/dummy.png}
+    \vspace{-0.2cm}
+    \subcaption{短いvspace}
+    \label{fig:narrow_vspace}
+  \end{minipage}
+  % 2番目の図--------------------------
+  \begin{minipage}[b]{0.45\hsize}
+    \centering
+    \includegraphics[ width=5cm]{images/dummy.png}
+    \subcaption{標準のvspace}
+    \label{fig:normal_vspace}
+  \end{minipage}
+  \caption{vspaceを調整する}
+  \label{fig:change_vspace}
+\end{figure}
+
+\subsection{図を回転させたい}
+単体の図を回転させるならincludegraphicsのオプションに角度を指定します．結果は図\ref{fig:rotate}のようになります．めったに使うことはないと思いますが．\par
+一方こちらは覚えておくと便利かもしれません．ページをまるまる回転させるならlandscapeです．プリアンプルに\url{\usepackage{landscape}}を入れておきます．あとは回転させたい部分を\url{\begin{landspace}}と\url{\end{landscape}}で囲むだけです．表でもなんでも回転できると思います．図\ref{fig:rotate_page}はページごと回転しています．
+
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=5cm, angle=60]{images/dummy.png}
+  \caption{60度回転した図}
+  \label{fig:rotate}
+\end{figure}
+
+\begin{landscape}
+  \begin{figure}[tbh]
+    \centering
+    \includegraphics[width=10cm]{images/dummy.png}
+    \caption{ページごと回転した図}
+    \label{fig:rotate_page}
+  \end{figure}
+\end{landscape}
+
+\section{表関連のtips}
+\url{booktabs.sty}が利用可能な場合，\url{\toprule}や\url{\bottomrule}を使ってより見た目の良い表を作成できるでしょう．

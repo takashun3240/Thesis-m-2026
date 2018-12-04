@@ -1,0 +1,66 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第2章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{図について}\label{ch:2}
+この章では，図について少し書いてみます．thesis.texのプリアンプルでもごちゃごちゃしていますが，ここでは基本的にjpgやpngの図を載せる方針です．eps図やpdf図は誰か詳しい人がいたらこの文章をアップデートしてみてください．
+
+\section{図をLaTeXで使う}
+thesis.texのプリアンプルを見てみましょう．\url{\usepackage[dvipdfmx]{graphicx}}と書かれていませんか? TeXはそれ自身が画像の取り込みをサポートしているわけではありません．この場合，dvipdfmx (ドライバ)の力を借りています．このドライバにはdvipdfmというものもあり，昔は挙動が違いました(現在，dvipdfmはディスコンで，実体はdvipdfmxとなっているはずです．コマンドラインで\url{$dvipdfm} \url{--version}すると確認できるでしょう)．\par
+dvipdfmxでは，jpg・png・pdfではextractbbを実行し勝手にバウンディングボックスを作成してくれます．epsの場合はなんかいい感じにしてくれるでしょう．図はそのまま最終的な出力pdfに突っ込まれることになるので，サイズ等に気をつけたほうがよいかもしれません．
+
+
+\section{普通に図を入れる}
+この節では，いろいろ試しつつ図を入れてみます．
+
+\subsection{まずは一枚}\label{ch:2-single_graphics}
+さて，とりあえずは一枚図を入れてみましょう．ソースは以下のリスト\ref{list:single_graphic}のようになるはずです．表示された図は\ref{fig:a_figure}になっています．このフォーマットではおそらく\SI{15}{\centi\metre}が最大の幅で，それ以上では本文の幅を超過した状態になるでしょう．
+
+\begin{lstlisting}[caption=図を一枚入れる,label=list:single_graphic, language=TeX]
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=8cm]{images/dummy.png}
+  \caption{一枚だけ図を入れてみる}
+  \label{fig:a_figure}
+\end{figure}
+\end{lstlisting}
+
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=8cm]{images/dummy.png}
+  \caption{1枚だけ図を入れてみる}
+  \label{fig:a_figure}
+\end{figure}
+
+\section{複数枚の図を並べる}
+このファイルではsubcaptionを使って複数の図を処理します．subfigやsubfigureは非推奨のようです．とりあえず複数の図を突っ込んでみましょう．もうソースを載せるのはたるいので，コードを直接読んでみてください．結果は図\ref{fig:fig_set}に示しています．本文中で個々の図を参照すると図\ref{fig:fig_part_1}のように参照されます．また，図のうちサブで振られた文字を取りたい場合は\subref{fig:fig_part_1}とするようです．
+
+\clearpage
+
+\begin{figure}[tbh]
+  \centering %これ必要かわからない
+  % 最初の図---------------------------
+  \begin{minipage}[b]{0.45\hsize}
+    \centering
+    \includegraphics[width=5cm]{images/dummy.png}
+    \subcaption{何かしらの図のひとつ目(ここが長すぎると2枚の図がズレるので，遭遇した人は頑張ってググるなりして直してください)}
+    \label{fig:fig_part_1}
+  \end{minipage}
+  % 2番目の図--------------------------
+  \begin{minipage}[b]{0.45\hsize}
+    \centering
+    \includegraphics[ width=5cm]{images/dummy.png}
+    \subcaption{何かしらの図のふたつ目}
+    \label{fig:fig_part_2}
+  \end{minipage}
+  \caption{2枚並べた図}
+  \label{fig:fig_set}
+\end{figure}
+
+\section{図に，キャプション以外の文字列を追加する}
+プリアンプルでccaptionが読み込んでみました．このパッケージはキャプション以外にちょっと説明文をつけたいなあという場合に役立つでしょう．出力結果は，図\ref{fig:using_ccaption}のようになります．
+
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=8cm]{images/dummy.png}
+  \caption{キャプションは短くしたい}
+  \legend{ここに長い説明が書けるようになります！！！！！！！！！！！！！！！！！！！！}
+  \label{fig:using_ccaption}
+\end{figure}
