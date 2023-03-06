@@ -64,3 +64,14 @@ dvipdfmxでは，jpg・png・pdfではextractbbを実行し勝手にバウンデ
   \legend{ここに長い説明が書けるようになります！！！！！！！！！！！！！！！！！！！！}
   \label{fig:using_ccaption}
 \end{figure}
+
+\section{図のキャプションに，参考文献を入れつつ，本文中の引用番号を昇順にそろえる}
+
+caption の [] には図目次・表目次に入れる表記を書いて，{} には本文中に書く cite 入りの表記を書く．
+
+\begin{figure}[tbh]
+  \centering
+  \includegraphics[width=8cm]{images/dummy.png}
+  \caption[citeを入れない]{citeを入れる→\cite{watson1953molecular}}
+  \label{fig:using_ccaption}
+\end{figure}
