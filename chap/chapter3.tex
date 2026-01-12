@@ -1,77 +1,174 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  第3章  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\chapter{表で遊ぶ}\label{ch:3}
-表についてが深いようですので，ここでは比較的基本的だと思われるところだけを紹介します．
-
-\section{表を入れる}
-表を入れてみましょう．もうめんどくさいので何も書きません．結果は表\ref{tb:simple}です．この表では，表のカラム宣言である\url{\begin{tabular}}において，lcと書いていますから，左のカラムは左寄せに，右のカラムは中央寄せになっています．各行では，\url{&}記号によってカラムが区切られ\url{\\} で1行が終わります．
-
-\begin{table}[tbh]
-  \centering
-  \caption{シンプルな表}
-  \label{tb:simple}
-  \begin{tabular}{lc} %\hline
-    column 1 & column 2 \\ \hline \hline
-           A & 1        \\
-           B & 2        \\ \hline
-  \end{tabular}
-\end{table}
-
-\section{表をカスタマイズする}
-\subsection{罫線をいじる}
-ちょっと下品に見えるので個人的にはあまりおすすめしませんが，ガッツリ罫線を入れることも可能です．縦の罫線はカラム宣言の指定子をいじればokです．パイプを突っ込むと縦の罫線が描かれます．結果は表\ref{tb:vertical_lines}です．\par
-また，横の罫線は\url{\hline}を挿入すると引かれます．こちらもあまり使いすぎるのは良くないでしょう．
-
-\begin{table}[tbh]
-  \centering
-  \caption{たくさん罫線を入れた表}
-  \label{tb:vertical_lines}
-  \begin{tabular}{|c|c|} \hline
-    column 1 & column 2 \\ \hline \hline
-           A & 1        \\ \hline \hline \hline \hline
-           B & 2        \\ \hline
-  \end{tabular}
-\end{table}
+\chapter{提案手法}\label{ch:3}
 
 
-\subsection{列の長さを指定する}
-なかなか面倒なやつです．とりあえず第一カラムを長めにしてみましょう．ここでは\url{p{50mm}}としてみました．これは，上/左詰めの幅指定カラムを意味します．結果は表\ref{tb:long_col}となります．
+本章では，試合ごとのチケット購買データをもとに試合をベクトル化し，販売傾向の類似性に基づいてベクトル空間上に埋め込む手法「Game2Vec」について説明する．
+本手法では，販売傾向が似た試合同士を近接させるようなベクトル空間の構築によって，試合毎の販売傾向を比較可能にする．
+
+\section{利用する特徴量}
 
 
-\begin{table}[tbh]
-  \centering
-  \caption{列の長さを調整する}
-  \label{tb:long_col}
-  \begin{tabular}{p{50mm}c} %\hline
-    column 1                             & column 2 \\ \hline \hline
-    長さを指定してみると，勝手に2行になります． & 1        \\
-    B                                    & 2        \\ \hline
-  \end{tabular}
-\end{table}
+本研究では，試合ごとの販売傾向を，「どの種類のチケットが，どのような来場者層に購入されたか」という観点から以下のように表現する．
 
-\subsection{ぶち抜きの表を作る}
-\url{\multicolumn}を使えば，複数の列をぶち抜いた表を作成できます．表\ref{tb:multi_col}に結果を示します(効果をわかりやすくするために縦の罫線を引いています)．\par
 
-\begin{table}[tbh]
-  \centering
-  \caption{列をぶち抜く}
-  \label{tb:multi_col}
-  \begin{tabular}{l|c|c} %\hline
-             & \multicolumn{2}{c}{結合部分} \\
-    column 1 & column 2 & column 3         \\ \hline \hline
-    A        & 1        & 3                \\
-    B        & 2        & 4                \\ \hline
-  \end{tabular}
-\end{table}
+\begin{itemize}
+  % \item チケット種別：価格帯ごとに分けた有料チケット3種(低価格，中価格，高価格) + 優待チケット + 招待チケット（計5種）
+  \item チケット種別：価格帯ごとに分けた有料チケット3種 + 優待チケット + 招待チケット（計5種）
+  \item ファン層：来場頻度に応じた5段階（超コア層〜超ライト層）
+\end{itemize}
 
-では，行をぶち抜く場合はどうでしょう．この場合はプリアンプルで\url{\usepackage{multirow}}しておかなければなりません．文法はmulticolumnとほぼ同じですが，位置指定子はすでにあるものを使うので*としておきます．結果は表\ref{tb:multi_row}のようになります．
+今回，有料チケット3種は，価格に基づき低価格帯（3,000円以下），中価格帯（3,000〜5,000円），高価格帯（5,000円以上）に分類した．
+一方，優待チケットは特定の会員やキャンペーン対象者に対して割引価格で提供されるチケットであり，招待チケットは無料配布されるチケットを指す．
+これらの優待，招待チケットは，運営側の施策判断によって配布量が調整される点で，有料チケットとは性質が異なる．
+% ファン層は対象シーズン内の試合への来場頻度によって，超コア層：20試合以上，コア層：10〜19試合，ミドル層：5〜9試合，ライト層：2〜4試合，超ライト層：1試合に分割した．
+ファン層については，各試合の時点でその試合を含む直近30試合における来場頻度に基づき，超コア層：20試合以上，コア層：10〜19試合，ミドル層：5〜9試合，ライト層：2〜4試合，超ライト層：1試合に分割した．
+このような定義により，購入者のロイヤルティや再来場傾向を考慮した販売分析が可能となる．
+なお，分析対象期間の冒頭に位置する試合では直近30試合分の履歴が不足するため，ファン層が極端に超ライト層やライト層に偏る可能性がある．
+% そこで本研究では，ファン層の定義に限り，分析対象期間より前の試合履歴も含めて来場頻度を算出し，試合間で販売構成を比較可能な形でファン層を定義している．
+そこで本研究では，ファン層の定義に限り，分析対象期間より前の試合履歴も含めて来場頻度を算出した．
+これにより，埋め込み対象の全試合において，来場した購入者のファン層は直近30試合の来場頻度によって分類され，大きな偏りをなくしている．
+% そこで本研究では，ファン層の定義に限り，埋め込み対象の試合が開催された期間より前の試合履歴も含めて来場頻度を算出し，試合間で販売構成を比較可能な形でファン層を定義している．
 
-\begin{table}[tbh]
-  \centering
-  \caption{行をぶち抜く}
-  \label{tb:multi_row}
-  \begin{tabular}{lc} %\hline
-    column 1 & column 2                 \\ \hline \hline
-           A & \multirow{2}{*}{ぶち抜き} \\
-           B &                          \\ \hline
-  \end{tabular}
-\end{table}
+
+各試合に対して，これらの組み合わせ（チケット種別 $ \times $ ファン層）ごとの販売枚数を集計し，25カテゴリの販売構成（5種 $ \times $ 5層）として表現する．
+このような構成を採用した理由は，販売傾向はチケット種別や購入するファン層によって大きく異なるため，単なる総販売数だけでは販売傾向を捉えられないためである．
+また，ファン層やチケットの種別は，マーケティングや配布戦略のターゲット設定にも直結する実用的な指標であるため特徴量として採用した．
+また，Game2Vecでは，販売データの利用期間を任意の日数（例：販売開始後4日，15日など）で設定でき，その時点までの販売構成を用いて販売傾向をベクトル空間に埋め込むことが可能である．
+さらに，本研究では，カテゴリ別の販売数をそのまま学習に利用するのではなく，会場の収容人数を基準とした販売率に変換して利用する．
+会場毎に収容人数が異なるため，販売数の絶対数を直接利用してしまうと，会場規模の差がそのまま販売構成に反映されてしまう．
+このような場合，販売傾向そのものの類似性よりも，会場の規模差によるスケールの違いが支配的となり，会場が違う試合間の販売傾向の比較が困難になる．
+% そこで，本研究では，各試合$i$におけるカテゴリ(価格帯$p$，ファン層$f$)別販売数n$_{i,p,f}$を会場の収容人数C$_{i}$で割り，次式で表される販売率r$_{i,p,f}$をカテゴリ別の特徴量として扱う．
+そこで，本研究では，各試合$i$におけるカテゴリ(価格帯$p$，ファン層$f$)別の売り上げた販売数n$_{i,p,f}$を会場の収容人数C$_{i}$で割り，次式で表される販売率r$_{i,p,f}$として扱う．
+
+\begin{equation}
+r_{i,p,f} = \frac{n_{i,p,f}}{C_{i}}
+\end{equation}
+
+% この販売率表現により，異なる会場間の試合でも販売傾向のスケールを統一でき，販売構造の類似性を捉えることが可能となる．
+この販売率表現により，会場規模が異なる試合間でもスケールを揃えた比較が可能となり，販売構造の類似性を適切に捉えられるようにした．
+
+
+\section{モデル構造と学習}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{images/model_game2vec_ver9.pdf}
+    \caption{Game2Vecの構造}
+    % \ecaption{The structure of Game2Vec．}
+    % \Description{An illustration of a player tracking pipeline with multiple stages including detection, tracking, and ID correction.}
+    \label{fig:pipeline_1}
+\end{figure*}
+
+Game2Vecのモデル構造と入出力を図\ref{fig:pipeline_1}に示す．Game2Vecは入力層，隠れ層，出力層の3層構造を持つ．
+入力する各試合IDは one-hot ベクトル（$1 \times V$）として表現される．
+ここで $V$ は試合の総数である．
+各試合は固有の販売構成を持つため，試合を識別する入力としてone-hot表現を採用した．
+このone-hotベクトルは学習を通じて，試合間の販売傾向の類似性を反映した分散表現に変換される．
+隠れ層 $N$ は3次元に設定し，試合ごとの分散表現（埋め込みベクトル）を表す．
+% 次元数を3に設定したのは以下の式を利用したためである\cite{shoji2024area}．
+次元数を3に設定したのは以下の式を利用したためである\cite{tensorflowFeatureColumns2017}．
+
+\vspace{-1.3em}
+\begin{equation*}
+\mathrm{embedding\_dimensions}
+= 
+\mathrm{number\_of\_categories}^{0.25}
+\end{equation*}
+
+この式は埋め込み次元数の目安が出力側のノード数をの$4$分の$1$乗した値であることを示す．
+% これを利用するとGame2Vecでの必要次元数は$25^{0.25}\simeq 2.24$となるが，この次元数は整数値にする必要があり，2次元にすると販売傾向を表現するのに次元数が足りない可能性があるため，次元数を3に設定した．
+これを利用するとGame2Vecでの必要次元数は$25^{0.25}\simeq 2.24$となる．
+この次元数は整数値にする必要があり，2次元にすると販売傾向を表現するのに次元数が足りない可能性があるため，次元数を3に設定した．
+重み行列 $W \in \mathbb{R}^{V \times N}$ によって，入力ベクトルを $1 \times N$ の埋め込みベクトルに変換する．
+このベクトルが，その試合を表す潜在的な販売傾向の特徴量として機能する．
+出力層では，重み行列 $W' \in \mathbb{R}^{N \times V'}$ を通じて，25次元の販売構成ベクトル（$1 \times V'$）を再構成する．
+ここで $V'=25$ は，5つの価格帯別チケット × 5つのファン層による販売カテゴリの数である．
+% 出力ベクトルは，各試合における チケット種別 $ \times $ ファン層別の売上枚数（販売構成） の予測を目的としており，損失関数には平均二乗誤差（MSE Loss）を用いる．
+% 出力ベクトルは，各試合におけるチケット種別×ファン層別の販売構成を再構成を目的としており，学習では実際の販売構成との誤差を最小化するように平均二乗誤差（Mean Squared Error; MSE）を損失関数として用いる．
+出力ベクトルは，各試合におけるチケット種別×ファン層別の販売構成を再構成を目的としている．
+学習では実際の販売構成との誤差を最小化するように平均二乗誤差（Mean Squared Error; MSE）を損失関数として用いた．
+
+
+
+
+
+
+
+
+
+
+% 表についてが深いようですので，ここでは比較的基本的だと思われるところだけを紹介します．
+
+% \section{表を入れる}
+% 表を入れてみましょう．もうめんどくさいので何も書きません．結果は表\ref{tb:simple}です．この表では，表のカラム宣言である\url{\begin{tabular}}において，lcと書いていますから，左のカラムは左寄せに，右のカラムは中央寄せになっています．各行では，\url{&}記号によってカラムが区切られ\url{\\} で1行が終わります．
+
+% \begin{table}[tbh]
+%   \centering
+%   \caption{シンプルな表}
+%   \label{tb:simple}
+%   \begin{tabular}{lc} %\hline
+%     column 1 & column 2 \\ \hline \hline
+%            A & 1        \\
+%            B & 2        \\ \hline
+%   \end{tabular}
+% \end{table}
+
+% \section{表をカスタマイズする}
+% \subsection{罫線をいじる}
+% ちょっと下品に見えるので個人的にはあまりおすすめしませんが，ガッツリ罫線を入れることも可能です．縦の罫線はカラム宣言の指定子をいじればokです．パイプを突っ込むと縦の罫線が描かれます．結果は表\ref{tb:vertical_lines}です．\par
+% また，横の罫線は\url{\hline}を挿入すると引かれます．こちらもあまり使いすぎるのは良くないでしょう．
+
+% \begin{table}[tbh]
+%   \centering
+%   \caption{たくさん罫線を入れた表}
+%   \label{tb:vertical_lines}
+%   \begin{tabular}{|c|c|} \hline
+%     column 1 & column 2 \\ \hline \hline
+%            A & 1        \\ \hline \hline \hline \hline
+%            B & 2        \\ \hline
+%   \end{tabular}
+% \end{table}
+
+
+% \subsection{列の長さを指定する}
+% なかなか面倒なやつです．とりあえず第一カラムを長めにしてみましょう．ここでは\url{p{50mm}}としてみました．これは，上/左詰めの幅指定カラムを意味します．結果は表\ref{tb:long_col}となります．
+
+
+% \begin{table}[tbh]
+%   \centering
+%   \caption{列の長さを調整する}
+%   \label{tb:long_col}
+%   \begin{tabular}{p{50mm}c} %\hline
+%     column 1                             & column 2 \\ \hline \hline
+%     長さを指定してみると，勝手に2行になります． & 1        \\
+%     B                                    & 2        \\ \hline
+%   \end{tabular}
+% \end{table}
+
+% \subsection{ぶち抜きの表を作る}
+% \url{\multicolumn}を使えば，複数の列をぶち抜いた表を作成できます．表\ref{tb:multi_col}に結果を示します(効果をわかりやすくするために縦の罫線を引いています)．\par
+
+% \begin{table}[tbh]
+%   \centering
+%   \caption{列をぶち抜く}
+%   \label{tb:multi_col}
+%   \begin{tabular}{l|c|c} %\hline
+%              & \multicolumn{2}{c}{結合部分} \\
+%     column 1 & column 2 & column 3         \\ \hline \hline
+%     A        & 1        & 3                \\
+%     B        & 2        & 4                \\ \hline
+%   \end{tabular}
+% \end{table}
+
+% では，行をぶち抜く場合はどうでしょう．この場合はプリアンプルで\url{\usepackage{multirow}}しておかなければなりません．文法はmulticolumnとほぼ同じですが，位置指定子はすでにあるものを使うので*としておきます．結果は表\ref{tb:multi_row}のようになります．
+
+% \begin{table}[tbh]
+%   \centering
+%   \caption{行をぶち抜く}
+%   \label{tb:multi_row}
+%   \begin{tabular}{lc} %\hline
+%     column 1 & column 2                 \\ \hline \hline
+%            A & \multirow{2}{*}{ぶち抜き} \\
+%            B &                          \\ \hline
+%   \end{tabular}
+% \end{table}
