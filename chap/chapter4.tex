@@ -44,9 +44,97 @@ Venue D & 7500 & 0 & 0 & 4 \\
 Venue E & 10000 & 0 & 0 & 3 \\
 Venue F & 2500 & 0 & 0 & 2 \\
 Venue G & 2500 & 0 & 0 & 1 \\\hline
-合計  &       & 29 & 30 & 28 \\\hline
+合計  &       & 29 & 29 & 29 \\\hline
 \end{tabular}\hfil}
 \end{table}
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=\linewidth]{imgs/game2vec_vis_base_4days.pdf}
+    % \includegraphics[width=\linewidth]{imgs/game2vec_vis_final_base.pdf}
+    % \includegraphics[width=\linewidth]{imgs/game2vec_vis_4days_base_ver4.pdf}
+    \includegraphics[width=0.6\linewidth]{images/ticket_cum_price_ver1.pdf}
+    \caption{初動販売の埋め込みとクラスタごとの代表販売構成}
+    % \ecaption{Early-sales embedding and representative sales composition for each cluster}
+    % \Description{An illustration of a player tracking pipeline with multiple stages including detection, tracking, and ID correction.}
+    \label{cum_price_ex}
+\end{figure}
+
+% \begin{figure*}[!t]
+%   \centering
+%   \begin{minipage}[b]{0.47\linewidth}
+%     \centering
+%     % \includegraphics[width=1.0\linewidth]{imgs/game2vec_vis_4days_opponent_rank.pdf}
+%     \includegraphics[width=1.0\linewidth]{images/ticket_cum_high_price_ver1.pdf}
+%     \subcaption{外的要因:対戦相手の順位}
+%     \label{cum_price}
+%   \end{minipage}
+%   \begin{minipage}[b]{0.47\linewidth}
+%     \centering
+%     % \includegraphics[width=1.0\linewidth]{imgs/game2vec_vis_4days_opponent_region.pdf}
+%     \includegraphics[width=1.0\linewidth]{images/ticket_cum_high_price_ver1.pdf}
+%     \subcaption{外的要因:対戦相手の地域}
+%     \label{cum_high_price}
+%   \end{minipage}
+%   \caption{初動販売傾向と外的要因の関係}
+%   % \ecaption{Early-sales embedding and its relationship to external factors (opponent ranking and region)}
+%   \label{累積販売数}
+% \end{figure*}
+
+\begin{figure*}[!t]
+  \centering
+
+  % 1行目（2枚）
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/ticket_cum_syotai_price_ver1.pdf}
+    \subcaption{図1の説明}
+    \label{fig:1}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/ticket_cum_yutai_price_ver1.pdf}
+    \subcaption{図2の説明}
+    \label{fig:2}
+  \end{minipage}
+
+  \vspace{2mm}
+
+  % 2行目（2枚）
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/ticket_cum_low_price_ver1.pdf}
+    \subcaption{図3の説明}
+    \label{fig:3}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/ticket_cum_middle_price_ver1.pdf}
+    \subcaption{図4の説明}
+    \label{fig:4}
+  \end{minipage}
+
+  \vspace{2mm}
+
+  % 3行目（左だけ：5枚目）
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/ticket_cum_high_price_ver1.pdf}
+    \subcaption{図5の説明}
+    \label{fig:5}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.48\linewidth}
+    \centering
+    % ここは空欄（レイアウト揃え用）
+  \end{minipage}
+
+  \caption{2列で5枚の図を並べた例}
+  \label{fig:five_2cols}
+\end{figure*}
+
 
 \section{Game2Vecによる埋め込み}
 
@@ -231,14 +319,14 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
 まず，類似度指標の定義について述べる．
 
 対象とするシーズン全体の試合数を $G$ とする．
-販売開始から $t$ 日目までの累積販売構成を用いて学習した Game2Vec の埋め込みベクトルを $\boldsymbol{g}_i^{(t)} \in \mathbb{R}^3$，最終販売構成から学習した最終ベクトルを $\boldsymbol{g}_i^{(\mathrm{final})} \in \mathbb{R}^3$ と表す（$i=1,\dots,G$）．
+販売開始から $t$ 日目までの累積販売構成を用いて学習した Game2Vec の埋め込みベクトルを $\mathbf{z}_i^{(t)} \in \mathbb{R}^3$，最終販売構成から学習した最終ベクトルを $\mathbf{z}_i^{(\mathrm{final})} \in \mathbb{R}^3$ と表す（$i=1,\dots,G$）．
 それぞれのベクトル空間において，試合ペア $(m,n)$（$1 \le m < n \le G$）間のユークリッド距離
 
 
 \begin{equation}
 \begin{split}
-  l_{mn}^{(t)} &= \left\lVert \boldsymbol{g}_m^{(t)} - \boldsymbol{g}_n^{(t)} \right\rVert_2 \\
-  l_{mn}^{(\mathrm{final})} &= \left\lVert \boldsymbol{g}_m^{(\mathrm{final})} - \boldsymbol{g}_n^{(\mathrm{final})} \right\rVert_2
+  l_{mn}^{(t)} &= \left\lVert \mathbf{z}_m^{(t)} - \mathbf{z}_n^{(t)} \right\rVert_2 \\
+  l_{mn}^{(\mathrm{final})} &= \left\lVert \mathbf{z}_m^{(\mathrm{final})} - \mathbf{z}_n^{(\mathrm{final})} \right\rVert_2
 \end{split}
 \end{equation}
 
@@ -300,7 +388,8 @@ $r_t$ が１に近いほど，$t$時点で最終的な販売傾向をより捉�
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\linewidth]{images/Scatter_plot_of_latent-space_similarity_ver3.pdf}
+    \includegraphics[width=0.6\linewidth]{images/Scatter_plot_of_latent-space_similarity_ver3.pdf}
+    % \includegraphics[width=0.6\linewidth]{images/ticket_cum_price_ver1.pdf}
     % \caption{試合間距離の散布図}
     \caption{初動販売ベクトル空間と最終販売ベクトル空間の試合間距離の散布図}
     % \ecaption{Scatter plot of pairwise game distances in early vs.\ final sales embeddings}
@@ -309,7 +398,7 @@ $r_t$ が１に近いほど，$t$時点で最終的な販売傾向をより捉�
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\linewidth]{images/Temporal_changes_in_the_latent_space_ver3.pdf}
+    \includegraphics[width=0.8\linewidth]{images/Temporal_changes_in_the_latent_space_ver3.pdf}
     % \includegraphics{imgs/Temporal_changes_in_the_latent_space.pdf}
     \caption{ベクトル空間類似度の時系列推移}
     % \ecaption{Temporal transition of vector space similarity}
