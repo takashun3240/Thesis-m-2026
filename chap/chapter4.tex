@@ -27,9 +27,9 @@
 対象期間中，このチームは7つの会場（Venue A～Venue G）をホームゲーム会場として使用している．
 各会場の収容人数（席数）と，各シーズンにおける試合数の内訳を表\ref{tab:dataset_summary}に示す．
 % プライバシーおよび秘匿性の観点から，会場名は匿名化して表記している．
-3シーズン合計の対象試合数は97試合であり，これらすべての試合について，第3章で述べた25カテゴリ（チケット種別×ファン層）の販売構成を算出し，Game2Vecの学習および第4.2章以降の評価実験に用いた．
+3シーズン合計の対象試合数は87試合であり，これらすべての試合について，第3章で述べた25カテゴリ（チケット種別×ファン層）の販売構成を算出し，Game2Vecの学習および第4.2章以降の評価実験に用いた．
 
-\begin{table}[tbh]
+\begin{table}[tb]
 \caption{使用データセットの概要\\（会場別の収容人数とシーズン別試合数）}
 % \ecaption{Summary of the dataset: stadium capacity and the number of games per season.}
 \label{tab:dataset_summary}
@@ -48,38 +48,47 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
 \end{tabular}\hfil}
 \end{table}
 
+また，本研究で扱う試合では，各試合で販売期間が異なるため，販売開始日を基準とした日数を共通の時間軸に整列させた．
+本研究で対象とする試合はいずれも販売期間が20日を超えるため（$D>20$），販売開始からの経過日数 $d$ を
+$d'\in\{0,1,\ldots,30\}$ に写像する区分的な再スケーリングを適用した．
+具体的には，初動および終盤の情報を保持するため，
+(1) 販売開始後10日間（$d\le 10$）は $d'=d$，
+(2) 販売終了前10日間（$d\ge D-10$）は $d'=20+(d-(D-10))$ として保持し，
+(3) それ以外の中間期間（$10<d<D-10$）を $d'=11$ から $20$ の範囲に線形に再スケールして割り当てた．
+このとき，中間期間の写像は連続値を取り得るため，日次の時系列として扱う目的で最終的に四捨五入し，
+$d'$ を整数日として離散化した．
+これにより，全試合の販売推移を「初動10日＋中盤10日＋終盤10日」の同一枠組みで比較可能にした．
+
+上記の整列後の日数 $d'$ に基づき，全試合を対象としてチケット種別の累積販売枚数を集計し，その時系列推移を図\ref{cum_price_ex}に示す．
+ここでは，販売開始後の各日（$d'=0,1,\ldots,30$）における累積販売枚数を，招待・優待・有料（低価格帯／中価格帯／高価格帯）のチケット種別に算出した．
+図\ref{cum_price_ex}は，評価実験で扱うデータの販売規模と，チケット種別による構成の概観を与えるものである．
+
+
 \begin{figure}[h]
     \centering
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_base_4days.pdf}
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_final_base.pdf}
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_4days_base_ver4.pdf}
-    \includegraphics[width=0.6\linewidth]{images/ticket_cum_price_ver1.pdf}
-    \caption{初動販売の埋め込みとクラスタごとの代表販売構成}
+    \includegraphics[width=0.8\linewidth]{images/ticket_cum_price_ver1.pdf}
+    \caption{累積販売枚数の時系列推移}
     % \ecaption{Early-sales embedding and representative sales composition for each cluster}
     % \Description{An illustration of a player tracking pipeline with multiple stages including detection, tracking, and ID correction.}
     \label{cum_price_ex}
 \end{figure}
 
-% \begin{figure*}[!t]
-%   \centering
-%   \begin{minipage}[b]{0.47\linewidth}
-%     \centering
-%     % \includegraphics[width=1.0\linewidth]{imgs/game2vec_vis_4days_opponent_rank.pdf}
-%     \includegraphics[width=1.0\linewidth]{images/ticket_cum_high_price_ver1.pdf}
-%     \subcaption{外的要因:対戦相手の順位}
-%     \label{cum_price}
-%   \end{minipage}
-%   \begin{minipage}[b]{0.47\linewidth}
-%     \centering
-%     % \includegraphics[width=1.0\linewidth]{imgs/game2vec_vis_4days_opponent_region.pdf}
-%     \includegraphics[width=1.0\linewidth]{images/ticket_cum_high_price_ver1.pdf}
-%     \subcaption{外的要因:対戦相手の地域}
-%     \label{cum_high_price}
-%   \end{minipage}
-%   \caption{初動販売傾向と外的要因の関係}
-%   % \ecaption{Early-sales embedding and its relationship to external factors (opponent ranking and region)}
-%   \label{累積販売数}
-% \end{figure*}
+さらに，チケット種別ごとの販売規模に加えて，各チケットがどのファン層によって購入されているかを把握するため，
+チケット種別ごとに累積販売枚数をファン層別に分解した時系列推移を図\ref{cum_fan_ex}に示す．
+図は全試合を対象に，前節で述べた販売期間の整列後の時間軸（販売開始後0〜30日）に基づいて累積販売枚数を集計し，
+各チケット種別についてファン層（超ライト層〜超コア層）を積み上げ表示したものである．
+図\ref{cum_fan_ex}より，招待チケットおよび優待チケットでは，超ライト層の寄与が大きく，
+次いでミドル層が一定の割合を占める一方，コア層・超コア層の寄与は相対的に小さいことが分かる（図\ref{fig:1}，\ref{fig:2}）．
+これは，招待・優待がライト層を中心とする来場促進施策として機能している可能性を示唆する．
+有料チケットについては，低価格帯では販売期間を通じて超ライト層とライト層の寄与が大きく，
+累積販売が比較的なだらかに増加する傾向が見られる（図\ref{fig:3}）．
+一方，中価格帯および高価格帯では販売終盤（およそ25日目以降）に累積販売が大きく増加し，
+その増分の一部はコア層・超コア層の寄与によって構成されることが確認できる（図\ref{fig:4}，\ref{fig:5}）．
+このことから，価格帯によって購入主体となるファン層や購入タイミングの違いが確認される．
+
 
 \begin{figure*}[!t]
   \centering
@@ -87,15 +96,15 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
   % 1行目（2枚）
   \begin{minipage}[b]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{images/ticket_cum_syotai_price_ver1.pdf}
-    \subcaption{図1の説明}
+    \includegraphics[width=\linewidth]{images/ticket_cum_syotai_price_ver2.pdf}
+    \subcaption{招待チケット}
     \label{fig:1}
   \end{minipage}
   \hfill
   \begin{minipage}[b]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{images/ticket_cum_yutai_price_ver1.pdf}
-    \subcaption{図2の説明}
+    \includegraphics[width=\linewidth]{images/ticket_cum_yutai_price_ver2.pdf}
+    \subcaption{優待チケット}
     \label{fig:2}
   \end{minipage}
 
@@ -104,15 +113,15 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
   % 2行目（2枚）
   \begin{minipage}[b]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{images/ticket_cum_low_price_ver1.pdf}
-    \subcaption{図3の説明}
+    \includegraphics[width=\linewidth]{images/ticket_cum_low_price_ver2.pdf}
+    \subcaption{低価格チケット}
     \label{fig:3}
   \end{minipage}
   \hfill
   \begin{minipage}[b]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{images/ticket_cum_middle_price_ver1.pdf}
-    \subcaption{図4の説明}
+    \includegraphics[width=\linewidth]{images/ticket_cum_middle_price_ver2.pdf}
+    \subcaption{中価格チケット}
     \label{fig:4}
   \end{minipage}
 
@@ -121,8 +130,8 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
   % 3行目（左だけ：5枚目）
   \begin{minipage}[b]{0.48\linewidth}
     \centering
-    \includegraphics[width=\linewidth]{images/ticket_cum_high_price_ver1.pdf}
-    \subcaption{図5の説明}
+    \includegraphics[width=\linewidth]{images/ticket_cum_high_price_ver2.pdf}
+    \subcaption{高価格チケット}
     \label{fig:5}
   \end{minipage}
   \hfill
@@ -131,19 +140,41 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
     % ここは空欄（レイアウト揃え用）
   \end{minipage}
 
-  \caption{2列で5枚の図を並べた例}
-  \label{fig:five_2cols}
+  \caption{チケット種別の累積販売枚数の時系列推移}
+  \label{cum_fan_ex}
 \end{figure*}
 
 
 \section{Game2Vecによる埋め込み}
 
-\begin{figure}[h]
+\subsection{埋め込み結果}
+
+本節では，Game2Vec により得られた試合ベクトルの埋め込み結果について示す．
+まず，初動販売として，販売開始から5日間の販売データのみを用いて Game2Vec を学習し，各試合を3次元のベクトル空間上に埋め込んだ．
+次に，この3次元ベクトルに対して $k$-means 法によるクラスタリングを行い，初動販売傾向が類似する試合同士を7クラスタに分割した．
+ここでは，$k$を変化させたときのSSE（クラスタ内平方和）の推移を確認し（図\ref{fig:elbow_kmeans}），減少が緩やかになる点を目安として$k=7$を採用した\cite{yuan2019research}．
+クラスタリング結果を可視化するため，3次元の初動ベクトルを t-SNE \cite{maaten2008visualizing} により2次元に射影し，各試合を点としてプロットしたものを図\ref{fig:4days_base} に示す．
+各点の色は，3次元空間上でのクラスタ割り当てを表している．
+さらに，各クラスタに含まれる試合についてカテゴリ別販売率の平均を計算し，そのクラスタの代表的な販売構成として，チケット種別×ファン層別の販売構成（25カテゴリの販売率）を横向きの積み上げ棒グラフとして図中に載せた．
+縦方向の軸がチケット種別（招待，優待，低価格帯，中価格帯，高価格帯）を，棒グラフ中の色がファン層（超コア層〜超ライト層）を表している．
+
+\begin{figure}[tb]
+    \centering
+    % \includegraphics[width=\linewidth]{imgs/game2vec_vis_base_final.pdf}
+    \includegraphics[width=0.6\linewidth]{images/elbow_ver1.pdf}
+    \caption{エルボー法によるSSEの推移}
+    % \ecaption{Final-sales embedding and representative sales composition for each cluster}
+
+    % \Description{An illustration of a player tracking pipeline with multiple stages including detection, tracking, and ID correction.}
+    \label{fig:elbow_kmeans}
+\end{figure}
+
+\begin{figure}[tb]
     \centering
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_base_4days.pdf}
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_final_base.pdf}
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_4days_base_ver4.pdf}
-    \includegraphics[width=1.0\linewidth]{images/game2vec_vis_4days_base_ver6.pdf}
+    \includegraphics[width=1.0\linewidth]{images/game2vec_vis_4days_base_ver7.pdf}
     \caption{初動販売の埋め込みとクラスタごとの代表販売構成}
     % \ecaption{Early-sales embedding and representative sales composition for each cluster}
     % \Description{An illustration of a player tracking pipeline with multiple stages including detection, tracking, and ID correction.}
@@ -151,28 +182,16 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
 \end{figure}
 
 
-\begin{figure}[h]
+\begin{figure}[tb]
     \centering
     % \includegraphics[width=\linewidth]{imgs/game2vec_vis_base_final.pdf}
-    \includegraphics[width=1.0\linewidth]{images/game2vec_vis_final_base_ver5.pdf}
+    \includegraphics[width=1.0\linewidth]{images/game2vec_vis_final_base_ver6.pdf}
     \caption{最終販売の埋め込みとクラスタごとの代表販売構成}
     % \ecaption{Final-sales embedding and representative sales composition for each cluster}
 
     % \Description{An illustration of a player tracking pipeline with multiple stages including detection, tracking, and ID correction.}
     \label{fig:final_base}
 \end{figure}
-
-\subsection{埋め込み結果}
-
-本節では，Game2Vec により得られた試合ベクトルの埋め込み結果について示す．
-% まず，販売開始から4日間の販売データのみを用いて学習した Game2Vec の潜在ベクトルを利用し，各試合を3次元のベクトル空間上に埋め込んだ．
-まず，初動販売として，販売開始から5日間の販売データのみを用いて Game2Vec を学習し，各試合を3次元のベクトル空間上に埋め込んだ．
-次に，この3次元ベクトルに対して $k$-means 法によるクラスタリングを行い，初動販売傾向が類似する試合同士を7クラスタに分割した．
-クラスタリング結果を可視化するため，3次元の初動ベクトルを t-SNE \cite{maaten2008visualizing} により2次元に射影し，各試合を点としてプロットしたものを図\ref{fig:4days_base} に示す．
-各点の色は，3次元空間上でのクラスタ割り当てを表している．
-% さらに，各クラスタを代表する試合をいくつか選択し，その試合における価格帯別×ファン層別の販売構成（25カテゴリの販売率）を横向きの積み上げ棒グラフとして図中に載せた．
-さらに，各クラスタに含まれる試合についてカテゴリ別販売率の平均を計算し，そのクラスタの代表的な販売構成として，チケット種別×ファン層別の販売構成（25カテゴリの販売率）を横向きの積み上げ棒グラフとして図中に載せた．
-縦方向の軸がチケット種別（招待，優待，低価格帯，中価格帯，高価格帯）を，棒グラフ中の色がファン層（超コア層〜超ライト層）を表している．
 
 図\ref{fig:4days_base} より，販売開始5日間という限られた期間であっても，試合ごとに初動の販売傾向が大きく異なることが確認できる．
 初動の売れ行きが良いクラスタの中にも，中価格帯の有料チケットが中心となっているパターンと，高価格帯のチケットが大きく売れているパターンが存在しており，このような試合毎の販売傾向の違いがベクトル空間上への埋め込みにも反映されていることが分かる．
@@ -181,10 +200,9 @@ Venue G & 2500 & 0 & 0 & 1 \\\hline
 同様に，最終的な販売データを用いて学習した Game2Vec の試合ベクトルを利用し，3次元空間でクラスタリングを行い，t-SNE による2次元射影と代表的な販売構成の可視化を行った結果を図\ref{fig:final_base}に示す．
 図\ref{fig:final_base} に示すように，最終販売に基づく埋め込みにおいても，試合毎に販売傾向が大きく異なる様子が表れている．
 中価格帯以上の有料チケットがあまり伸びず，招待や優待に依存して販売を埋めているクラスタがある一方で，有料チケットが大きく売れ，招待や優待に頼らずに販売が完結しているクラスタも存在する．
-% さらに，ファン層に着目すると，招待や優待による来場は超ライト層やライト層に偏る傾向が強く，一方で有料チケットの販売はコア層やミドル層の比率が高いクラスタが多いことも確認できる．
 さらに，ファン層に着目すると，招待や優待による来場は超ライト層やライト層に偏る傾向が強いことが確認できる．
 このような可視化により，初動期間のみを用いた場合と最終販売を用いた場合のいずれにおいても，25カテゴリすべてを考慮した試合ごとの販売傾向に基づいて，似た販売パターンを持つ試合をベクトル空間上で探索できるようになった．
-% 次節以降では，こうして得られた最終的な販売傾向が，初動段階の販売構成にどの程度現れているのかについて，時系列的な変化の分析を通じて検証を行った．
+
 
 
 \subsection{ベクトル空間と外的要因との関係}
@@ -398,7 +416,7 @@ $r_t$ が１に近いほど，$t$時点で最終的な販売傾向をより捉�
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=0.8\linewidth]{images/Temporal_changes_in_the_latent_space_ver3.pdf}
+    \includegraphics[width=0.9\linewidth]{images/Temporal_changes_in_the_latent_space_ver3.pdf}
     % \includegraphics{imgs/Temporal_changes_in_the_latent_space.pdf}
     \caption{ベクトル空間類似度の時系列推移}
     % \ecaption{Temporal transition of vector space similarity}
@@ -414,18 +432,10 @@ $r_t$ が１に近いほど，$t$時点で最終的な販売傾向をより捉�
 
 予測対象は，各試合における最終販売時点の販売構成である．
 チケット種別（有料3価格帯，優待，招待）とファン層（超コア層～超ライト層）の組み合わせにより定義される25カテゴリそれぞれについて，販売率
-% \[
-%  r_{i,p,f} = \frac{n_{i,p,f}}{C_i}
-% \]
 $r_{i,p,f}$を求め，これらを並べた 25 次元ベクトルを試合 $i$ の最終販売構成とする．
-% ここで $n_{i,p,f}$ は試合 $i$ におけるカテゴリ $(p,f)$ の販売枚数，$C_i$ は会場の収容人数である．
 本タスクは，説明変数からこの25次元の販売率ベクトルを推定する多出力回帰問題として定式化する．
 
-% \subsubsection{説明変数と学習条件}
-
 予測モデルには，多次元の連続値を同時に出力可能な multi\mbox{-}output 型のランダムフォレスト回帰モデルを用いた．
-% すなわち，25 カテゴリごとに個別のモデルを学習するのではなく，25 次元の販売率ベクトルを一括して出力する単一のモデルを学習する．
-% 全ての実験において，同一の木の本数や深さ制限などのハイパパラメータを用い，説明変数の構成のみを変更することで比較が公平になるようにした．
 学習および評価には leave\mbox{-}one\mbox{-}venue\mbox{-}out の分割を採用した．
 具体的には，7会場のうち1会場をテスト用として除外し，残り6会場の試合データを用いてモデルを学習する．
 その後，除外した会場に属する全試合について販売構成を予測し，誤差を算出する．
@@ -433,161 +443,89 @@ $r_{i,p,f}$を求め，これらを並べた 25 次元ベクトルを試合 $i$ 
 この設定は，特定の会場について過去の販売実績が学習データに含まれない状況を想定したものであり，未観測会場に対する汎化性能の検証を目的としている．
 
 予測性能の比較にあたっては，外的要因のみを説明変数とするベースラインモデルと，外的要因に加えて Game2Vec により得られた試合ベクトルを説明変数として追加したモデルを構築し，両者の性能差を評価した．
-% 外的要因には，開催シーズン，節数，開催曜日，会場，対戦相手チームの順位や地域，スタジアムの収容人数など，既存研究\cite{pang2024forecasting}\cite{fiori2019reservation}\cite{quansah2024determining}でも一般的に用いられてきた変数を採用した．
 外的要因として用いた変数は，開催シーズン，節数，開催曜日，対戦相手チーム，対戦相手チームの順位，対戦相手チームの地域，スタジアムの収容人数，および試合会場と対戦相手チームのホームタウン間の距離である．
-これらはいずれも，試合開催前に取得可能であり，既存の来場予測研究においても一般的に利用されてきた説明変数である\cite{pang2024forecasting}\cite{fiori2019reservation}\cite{quansah2024determining}．
+% これらはいずれも，試合開催前に取得可能であり，既存の来場予測研究においても一般的に利用されてきた説明変数である\cite{pang2024forecasting}\cite{fiori2019reservation}\cite{quansah2024determining}．
+これらはいずれも，試合開催前に取得可能であり，既存の来場予測研究においても一般的に利用されてきた説明変数である．
+外的要因に含まれるカテゴリ変数は順序を持たないカテゴリとして整数エンコードし，モデルへ入力した．
 Game2Vecによる試合ベクトルとしては，販売開始後5日までの販売データから学習した3次元ベクトルをそれぞれ独立した説明変数として追加した．
 
 \subsection{予測結果と考察}
 
 まず，モデルの比較を行うために，25 カテゴリ別販売率から得られる総販売率に着目した．
-
 総販売率は，25 カテゴリ別販売率の合計として定義し，その真値と予測値の差の絶対値の平均（MAE）を会場ごとに算出した．
 図\ref{fig:prediction_final} に，会場別に総販売率 MAE を比較した結果を示す．
 横軸が会場（Venue A～Venue G），縦軸がその会場に属する試合の総販売率 MAE の平均を表す．
 青色の棒が外的要因のみを説明変数としたベースラインモデル，緑色の棒が外的要因に Game2Vec 試合ベクトルを追加したモデルに対応する．
-
-% 図\ref{fig:prediction_final}より，Game2Vec 試合ベクトルを追加したモデルは，多くの会場で総販売率 MAE を低減しており，特に Venue B，Venue C，Venue F で顕著な改善が見られる．
 図\ref{fig:prediction_final}より，Game2Vec 試合ベクトルを追加したモデルは，多くの会場で総販売率の誤差が小さくなっている．
-特に，VenueFは精度が大きく改善している．
-% 第4.2節で示したように，これら３会場に属する試合は，初動販売に基づく埋め込み空間と最終販売に基づく埋め込み空間のいずれにおいても互いに近接して配置されていた．
-第4.2節で示した図\ref{初動販売ベクトル}，\ref{最終販売ベクトル}から分かるように，Venue Fを含むVenue B，Cの3会場に属する試合は，初動販売に基づく埋め込み空間と最終販売に基づく埋め込み空間のいずれにおいても互いに近接して配置されていた．
-これは，Venue B，C，F の試合は最終的な販売構成が類似しており，その違いが販売開始直後の初動販売構成の段階から既に現れていることを意味する．
-% そのため，leave\mbox{-}one\mbox{-}venue\mbox{-}outの設定で、特定の会場を予測するとき、その会場の過去データを学習データに入れていない場合でも，初動販売に基づく試合ベクトルが会場を跨いだ販売傾向の共通性を捉える説明変数として機能し，精度が向上したと考えられる．
-そのため，leave\mbox{-}one\mbox{-}venue\mbox{-}out の設定で特定の会場を予測する際に，当該会場の過去データを学習に含めていなくても，初動販売に基づく試合ベクトルが会場を跨いだ販売傾向の共通性を捉える説明変数として機能し，予測精度が向上したと考えられる．
-
-図\ref{fig:prediction_final_25category}は，Venue F における25カテゴリごとの最終販売率の誤差について，2つのモデルを並べて比較したものである．
-図\ref{fig:prediction_final_25category}より，Venue F ではほぼ全てのカテゴリで Game2Vec を用いたモデルが，外的要因のみのモデルよりも誤差が小さいことが分かる．
-図\ref{fig:prediction_final_true}は，同じく Venue F を対象に，カテゴリ別の販売率について真値と各モデルの予測値を重ねて示した図である．
-% 図\ref{fig:prediction_final_25category}より，Venue F ではほぼ全てのカテゴリで Game2Vec を用いたモデルが，外的要因のみのモデルよりも誤差が小さいことが分かる。
-% 図から，高価格帯チケット（3000–5000円帯・5000円以上）では外的要因のみによる予測が販売率を過小評価し，一方で招待・優待カテゴリを過大に見積もっているのに対し，初動販売を考慮したモデルでは有料チケットの販売をより正確に捉えつつ，招待・優待への依存度も真値に近い水準まで低減できている．
-図から，高価格帯チケットでは外的要因のみによる予測が販売率を過小評価し，一方で招待・優待カテゴリを過大に見積もっているのに対し，初動販売を考慮したモデルでは有料チケットの販売をより正確に捉えつつ，招待・優待への依存度も真値に近い水準まで低減できている．
-これにより，外的要因のみの予測に基づくと「高価格帯はあまり売れないと予測され，多くの来場を招待・優待で確保する必要がある」と判断してしまうケースでも，初動販売に基づく試合ベクトルの利用により，「高価格帯チケットの需要が十分に見込めるため，過度な招待・優待配布は不要である」といった，より現実に即した運営判断を支援できる可能性がある．
-
-一方で，図\ref{fig:prediction_final}より，本実験において総販売率の予測誤差が低下した唯一の会場は Venue G であった．
-第4.2節で示した埋め込み結果図\ref{初動販売ベクトル}，\ref{最終販売ベクトル}を見ると，Venue G での試合は，初動販売に基づくベクトル空間では主に Venue B や Venue C 付近に配置されている一方で，最終販売に基づく空間では Venue A や Venue D に近い領域へと移動していた．
-すなわち，Venue G は販売初期と最終段階とで類似する会場が異なっており，他会場と共有される販売パターンが時間とともに変化する傾向がある．
-このように，初動段階での近傍構造が最終的な販売傾向を十分に代表していない場合には，Game2Vec 試合ベクトルを用いても，他会場の販売構成パターンをうまく転移できず，予測精度が低下する可能性がある．
 
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\linewidth]{images/model_comparison_final_ver3.pdf}
+    \includegraphics[width=0.9\linewidth]{images/model_comparison_final_ver3.pdf}
     % \caption{会場別総販売率予測におけるモデル性能の比較}
     \caption{会場別総販売率予測におけるモデル性能の比較}
     % \ecaption{Comparison of model performance for total sales-rate prediction by venue}
     \label{fig:prediction_final}
 \end{figure}
 
+ここで，外的要因のみのモデルと，外的要因にGame2Vec試合ベクトルを加えたモデルについて，ランダムフォレストの特徴量重要度を図\ref{fig:fi_compare}に示す．
+外的要因のみのモデルでは，収容人数（capacity）や対戦相手の勝率（opponent\_winrate）などが比較的重要度の高い特徴量となった．
+一方，外的要因にGame2Vec試合ベクトルを追加したモデルにおいても，capacityやopponent\_winrateは依然として上位に位置している．
+その上で，試合ベクトルも高い重要度を示しており，販売開始後の初動販売から得られる情報が外的要因を補完する形で利用されたことで，予測精度が向上したと考えられる．
+ただ，Game2Vecの各次元の重要度には差が見られ，一部の次元（dim0, dim2）が相対的に高い重要度を示す．
+これは、重要度の低い次元には外的要因でも説明可能な販売傾向の差が主として反映されており，重要度の高い次元には外的要因では捉えにくい最終的な販売傾向に関する情報が，初動販売から抽出されて反映された可能性がある．
+
+\begin{figure}[t]
+  \centering
+  \begin{subfigure}[t]{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/external_feature_importance_ver1.pdf}
+    \caption{外的要因のみ}
+    \label{fig:fi_external_only}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.49\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/game2vec_feature_importance_ver1.pdf}
+    \caption{外的要因＋Game2Vec}
+    \label{fig:fi_external_game2vec}
+  \end{subfigure}
+  \caption{予測モデルにおける特徴量重要度の比較}
+  \label{fig:fi_compare}
+\end{figure}
+
+
+
+% 図\ref{fig:prediction_final}より，Game2Vec 試合ベクトルを追加したモデルは，多くの会場で総販売率の誤差が小さくなっている．
+% 特に，VenueFは精度が大きく改善している．
+図\ref{fig:prediction_final}より，VenueFでの予測精度の大幅な改善が，確認できる．
+第4.2節で示した図\ref{初動販売ベクトル}，\ref{最終販売ベクトル}から分かるように，Venue Fを含むVenue B，Cの3会場に属する試合は，初動販売に基づく埋め込み空間と最終販売に基づく埋め込み空間のいずれにおいても互いに近接して配置されていた．
+これは，Venue B，C，F の試合は最終的な販売構成が類似しており，その違いが販売開始直後の初動販売構成の段階から既に現れていることを意味する．
+そのため，leave\mbox{-}one\mbox{-}venue\mbox{-}out の設定で特定の会場を予測する際に，当該会場の過去データを学習に含めていなくても，初動販売に基づく試合ベクトルが会場を跨いだ販売傾向の共通性を捉える説明変数として機能し，予測精度が向上したと考えられる．
+
+図\ref{fig:prediction_final_25category}は，Venue F における25カテゴリごとの最終販売率の誤差について，2つのモデルを並べて比較したものである．
+図\ref{fig:prediction_final_25category}より，Venue F ではほぼ全てのカテゴリで Game2Vec を用いたモデルが，外的要因のみのモデルよりも誤差が小さいことが分かる．
+図\ref{fig:prediction_final_true}は，同じく Venue F を対象に，カテゴリ別の販売率について真値と各モデルの予測値を重ねて示した図である．
+図から，高価格帯チケットでは外的要因のみによる予測が販売率を過小評価し，一方で招待・優待カテゴリを過大に見積もっているのに対し，初動販売を考慮したモデルでは有料チケットの販売をより正確に捉えつつ，招待・優待への依存度も真値に近い水準まで低減できている．
+これにより，外的要因のみの予測に基づくと「高価格帯はあまり売れないと予測され，多くの来場を招待・優待で確保する必要がある」と判断してしまうケースでも，初動販売に基づく試合ベクトルの利用により，「高価格帯チケットの需要が十分に見込めるため，過度な招待・優待配布は不要である」といった，より現実に即した運営判断を支援できる可能性がある．
+
+
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\linewidth]{images/finalrate_25category_venueF_ver4.pdf}
+    \includegraphics[width=0.9\linewidth]{images/finalrate_25category_venueF_ver4.pdf}
     \caption{Venue F におけるカテゴリ別販売率予測誤差の比較}
     % \ecaption{Category-wise comparison of sales-rate prediction errors at Venue F}
     \label{fig:prediction_final_25category}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[tb]
     \centering
-    \includegraphics[width=\linewidth]{images/finalrate_true_25category_venueF_ver5.pdf}
+    \includegraphics[width=0.9\linewidth]{images/finalrate_true_25category_venueF_ver5.pdf}
     \caption{Venue F におけるカテゴリ別販売率の真値と予測値の比較}
     % \ecaption{Category-wise comparison between true and predicted sales rates at Venue F}
     \label{fig:prediction_final_true}
 \end{figure}
 
-% \begin{table}[tb]
-% \caption{使用データセットの概要\\（会場別の収容人数とシーズン別試合数）}
-% % \ecaption{Summary of the dataset: stadium capacity and the number of games per season.}
-% \label{tab:dataset_summary}
-% \hbox to\hsize{\hfil
-% \begin{tabular}{l|r|rrr}\hline\hline
-% 会場 & 収容人数 & \multicolumn{3}{c}{各シーズンの試合数} \\\cline{3-5}
-%      & (席数)   & 2022/23 & 2023/24 & 2024/25 \\\hline
-% Venue A & 10500 & 24 & 13 & 12 \\ % 例：国立代々木競技場第一体育館 & 10329 & 20 & 18 & 22
-% Venue B & 3000 & 5 & 6 & 5 \\
-% Venue C & 3000 & 0 & 10 & 2 \\
-% Venue D & 7500 & 0 & 0 & 4 \\
-% Venue E & 10000 & 0 & 0 & 3 \\
-% Venue F & 2500 & 0 & 0 & 2 \\
-% Venue G & 2500 & 0 & 0 & 1 \\\hline
-% 合計  &       & 29 & 30 & 28 \\\hline
-% \end{tabular}\hfil}
-% \end{table}
-
-% ぜひここを充実させてもらいたい！
-
-% \section{文章関連のtips}
-% \subsection{本文と目次で表示される文章を変えたい}
-% すでに出ていますが，\url{\section[目次用の文]{本文用の文}}とすることで設定可能です．図や表のキャプションでも同じことができます．
-
-% \subsection{refで混乱しないために}
-% \url{ref{}}で何を参照したのか混乱しないためには，labelの時点で例えば図はfig:をつける，表はtb:とするなどのルールを決めておくと良いでしょう．
-
-% \subsection{色を変更する}
-% プリアンプルでcolorが読み込まれた状態で\textcolor{red}{赤くなあれ}でOKです．
-
-% \subsection{範囲コメントアウトを行う}
-% 一行だけのコメントアウトは\url{%}で可能ですが，複数行を一気にコメントアウトする場合は，2つの方法が考えられます．まずひとつ目は，\url{\if0}と\url{\fi}で囲んでしまう方法です．この方法は囲った範囲内に\url{\if}があると失敗する可能性があります．\par
-% ↓ソースコードではここにコメントアウトされたエリアがあります．コンパイル済みのpdfではおそらくこの文章の次に「もうひとつの〜」と文が来るはずです．\par
-
-% \if0
-% ここは
-% 出力
-% されません．
-% \fi
-
-% もうひとつの方法は，commentパッケージを使う方法です．プリアンプルに\\\url{\usepackage{comment}}を記載しておきます．あとはコメントアウトしたい範囲を\url{\begin{comment}}と\url{\end{comment}}で囲いましょう．
-
-% \begin{comment}
-% ここは
-% 出力
-% されません．
-% \end{comment}
-
-
-% \section{図関連のtips}
-% \subsection{図とキャプションの間を詰めたい・広げたい}
-% \url{vspace}の出番です．図\ref{fig:change_vspace}に例を示します．図\ref{fig:narrow_vspace}では標準より狭いvspaceを設定しました．図\ref{fig:normal_vspace}と見比べてください．
-
-% \begin{figure}[tbh]
-%   \centering %これ必要かわからない
-%   % 最初の図---------------------------
-%   \begin{minipage}[b]{0.45\hsize}
-%     \centering
-%     \includegraphics[width=5cm]{images/dummy.png}
-%     \vspace{-0.2cm}
-%     \subcaption{短いvspace}
-%     \label{fig:narrow_vspace}
-%   \end{minipage}
-%   % 2番目の図--------------------------
-%   \begin{minipage}[b]{0.45\hsize}
-%     \centering
-%     \includegraphics[ width=5cm]{images/dummy.png}
-%     \subcaption{標準のvspace}
-%     \label{fig:normal_vspace}
-%   \end{minipage}
-%   \caption{vspaceを調整する}
-%   \label{fig:change_vspace}
-% \end{figure}
-
-% \subsection{図を回転させたい}
-% 単体の図を回転させるならincludegraphicsのオプションに角度を指定します．結果は図\ref{fig:rotate}のようになります．めったに使うことはないと思いますが．\par
-% 一方こちらは覚えておくと便利かもしれません．ページをまるまる回転させるならlandscapeです．プリアンプルに\url{\usepackage{landscape}}を入れておきます．あとは回転させたい部分を\url{\begin{landspace}}と\url{\end{landscape}}で囲むだけです．表でもなんでも回転できると思います．図\ref{fig:rotate_page}はページごと回転しています．
-
-% \begin{figure}[tbh]
-%   \centering
-%   \includegraphics[width=5cm, angle=60]{images/dummy.png}
-%   \caption{60度回転した図}
-%   \label{fig:rotate}
-% \end{figure}
-
-% \begin{landscape}
-%   \begin{figure}[tbh]
-%     \centering
-%     \includegraphics[width=10cm]{images/dummy.png}
-%     \caption{ページごと回転した図}
-%     \label{fig:rotate_page}
-%   \end{figure}
-% \end{landscape}
-
-% \section{表関連のtips}
-% \url{booktabs.sty}が利用可能な場合，\url{\toprule}や\url{\bottomrule}を使ってより見た目の良い表を作成できるでしょう．
+一方で，図\ref{fig:prediction_final}より，本実験において総販売率の予測誤差が増加した唯一の会場は Venue G であった．
+第4.2節で示した埋め込み結果図\ref{初動販売ベクトル}，\ref{最終販売ベクトル}を見ると，Venue G での試合は，初動販売に基づくベクトル空間では主に Venue B や Venue C 付近に配置されている一方で，最終販売に基づく空間では Venue A や Venue D に近い領域へと移動していた．
+すなわち，Venue G は販売初期と最終段階とで類似する会場が異なっており，他会場と共有される販売パターンが時間とともに変化する傾向がある．
+このように，初動段階での近傍構造が最終的な販売傾向を十分に代表していない場合には，Game2Vec 試合ベクトルを用いても，他会場の販売構成パターンをうまく転移できず，予測精度が低下する可能性がある．
